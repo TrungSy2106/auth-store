@@ -8,6 +8,9 @@ export class RawBodyMiddleware implements NestMiddleware {
     req.on('data', (chunk: Buffer) => chunks.push(chunk));
     req.on('end', () => {
       req.rawBody = Buffer.concat(chunks);
+      try {
+        if (req.rawBody) req.body = JSON.parse(req.rawBody.toString());
+      } catch (e) {}
       next();
     });
   }
