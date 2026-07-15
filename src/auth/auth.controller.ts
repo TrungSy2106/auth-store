@@ -1,7 +1,7 @@
 import {
   Controller,
   Get,
-  Put,
+  Patch,
   Body,
   UseGuards,
   HttpCode,
@@ -11,11 +11,13 @@ import { AuthService } from './auth.service';
 import { HmacGuard } from './hmac.guard';
 
 interface AuthBody {
-  auth: string;
+  auth?: string;
+  auth2?: string;
 }
 
 interface AuthResponse {
   auth: string | null;
+  auth2: string | null;
 }
 
 @Controller('auth')
@@ -25,13 +27,24 @@ export class AuthController {
 
   @Get()
   getAuth(): AuthResponse {
-    return { auth: this.authService.get() };
+    return { 
+      auth: this.authService.get(),
+      auth2: this.authService.getAuth2(),
+    };
   }
 
-  @Put()
+  @Patch()
   @HttpCode(HttpStatus.OK)
   setAuth(@Body() body: AuthBody): AuthResponse {
-    this.authService.set(body.auth);
-    return { auth: this.authService.get() };
+    if (body.auth !== undefined) {
+      this.authService.set(body.auth);
+    }
+    if (body.auth2 !== undefined) {
+      this.authService.setAuth2(body.auth2);
+    }
+    return { 
+      auth: this.authService.get(),
+      auth2: this.authService.getAuth2(),
+    };
   }
 }
